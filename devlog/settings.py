@@ -24,6 +24,9 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'drf_spectacular',
     'corsheaders',
+    
+    # Local apps
+    'core.accounts',
 ]
 
 MIDDLEWARE = [
@@ -83,6 +86,9 @@ USE_TZ = True
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Custom User Model
+AUTH_USER_MODEL = 'core_accounts.User'
+
 # REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -110,3 +116,7 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'DevLog API',
     'VERSION': '1.0.0',
 }
+
+# GitHub OAuth
+GITHUB_CLIENT_ID = os.getenv('GITHUB_CLIENT_ID')
+GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET')
