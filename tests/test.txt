@@ -1,0 +1,37 @@
+Run all tests:
+bash# Run all tests
+pytest tests/ -v
+
+# Run specific test file
+pytest tests/test_webhook_signature.py -v
+
+# Run with coverage
+pip install pytest-cov
+pytest tests/ --cov=core.webhooks --cov-report=html
+Run simulation scripts:
+bash# Test Redis
+python scripts/test_redis_connection.py
+
+# Test Celery worker
+python scripts/test_celery_worker.py
+
+# Simulate push event
+python scripts/simulate_push.py
+
+Quick Test Commands Cheat Sheet
+bash# 1. Test Redis is working
+python scripts/test_redis_connection.py
+
+# 2. Test Celery worker is connected
+python scripts/test_celery_worker.py
+
+# 3. Simulate a GitHub push webhook
+python scripts/simulate_push.py
+
+# 4. Run unit tests
+pytest tests/ -v
+
+# 5. Check webhook events in Django
+python manage.py shell
+>>> from core.webhooks.models import WebhookEvent
+>>> WebhookEvent.objects.all()

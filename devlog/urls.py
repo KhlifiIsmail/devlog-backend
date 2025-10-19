@@ -18,4 +18,7 @@ urlpatterns = [
     
     # Tracking
     path('api/v1/', include('core.tracking.urls')),
+    
+    #webhooks
+    path('api/v1/', include('core.webhooks.urls')),
 ]
