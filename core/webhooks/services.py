@@ -275,11 +275,11 @@ class WebhookProcessor:
             return 0
         
         # Use SessionGrouper to create sessions
-        grouper = SessionGrouper(threshold_minutes=30)
-        sessions = grouper.group_commits(list(ungrouped_commits))
+        grouper = SessionGrouper(user)
+        sessions_created = grouper.group_commits()
         
-        logger.info(f"Grouped {ungrouped_commits.count()} commits into {len(sessions)} sessions")
-        return len(sessions)
+        logger.info(f"Grouped {ungrouped_commits.count()} commits into {sessions_created} sessions")
+        return sessions_created
     
     def _parse_timestamp(self, timestamp_str: Optional[str]) -> datetime:
         """Parse ISO 8601 timestamp from GitHub."""

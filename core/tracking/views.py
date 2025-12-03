@@ -254,3 +254,177 @@ class SessionGroupView(APIView):
                 {'error': 'Failed to group commits into sessions'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+# ==================== AI NARRATIVE VIEWS ====================
+
+class SessionNarrativeView(APIView):
+    """Generate AI narrative for a coding session."""
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        operation_id="generate_session_narrative",
+        summary="Generate AI narrative for session",
+        description="Generate a technical analysis narrative for a coding session using AI",
+        responses={
+            200: OpenApiResponse(
+                description="AI narrative generated successfully",
+                response={
+                    'type': 'object',
+                    'properties': {
+                        'narrative': {'type': 'string'},
+                        'generated_at': {'type': 'string'},
+                        'model_used': {'type': 'string'},
+                        'session_id': {'type': 'integer'},
+                        'cached': {'type': 'boolean'}
+                    }
+                }
+            ),
+            404: OpenApiResponse(description="Session not found"),
+            400: OpenApiResponse(description="Failed to generate narrative"),
+            403: OpenApiResponse(description="Permission denied"),
+        }
+    )
+    def post(self, request, session_id):
+        """Generate or retrieve AI narrative for a session."""
+        try:
+            # Verify session exists and user has access
+            session = CodingSession.objects.get(
+                id=session_id,
+                user=request.user
+            )
+
+            # Import AI service
+            from core.ai.narrative import NarrativeService
+
+            # Generate narrative
+            narrative_service = NarrativeService()
+            result = narrative_service.generate_session_narrative(session_id)
+
+            # Check if it was cached
+            from django.core.cache import cache
+            cache_key = f"narrative_{session_id}"
+            was_cached = cache.get(cache_key) is not None
+
+            logger.info(f"Generated narrative for session {session_id} (cached: {was_cached})")
+
+            return Response({
+                'narrative': result['narrative'],
+                'generated_at': result['generated_at'],
+                'model_used': result['model_used'],
+                'session_id': session_id,
+                'cached': was_cached,
+                'commit_count': result.get('commit_count', 0),
+                'session_duration': result.get('session_duration', 0)
+            })
+
+        except CodingSession.DoesNotExist:
+            return Response(
+                {'error': 'Session not found or access denied'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except ValueError as e:
+            logger.error(f"Invalid session data for narrative generation: {e}")
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except RuntimeError as e:
+            logger.error(f"AI service failed for session {session_id}: {e}")
+            return Response(
+                {'error': 'AI service temporarily unavailable'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
+        except Exception as e:
+            logger.error(f"Unexpected error generating narrative for session {session_id}: {e}")
+            return Response(
+                {'error': 'Failed to generate narrative'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+class SessionSimilarityView(APIView):
+    """Find similar coding sessions using vector embeddings."""
+
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        operation_id="find_similar_sessions",
+        summary="Find similar coding sessions",
+        description="Find coding sessions similar to the given session using vector embeddings",
+        responses={
+            200: OpenApiResponse(
+                description="Similar sessions found",
+                response={
+                    'type': 'object',
+                    'properties': {
+                        'similar_sessions': {
+                            'type': 'array',
+                            'items': {
+                                'type': 'object',
+                                'properties': {
+                                    'session_id': {'type': 'integer'},
+                                    'similarity_score': {'type': 'number'},
+                                    'repository': {'type': 'string'},
+                                    'duration_minutes': {'type': 'integer'},
+                                    'total_commits': {'type': 'integer'},
+                                    'primary_language': {'type': 'string'},
+                                    'started_at': {'type': 'string'},
+                                    'files_changed': {'type': 'integer'}
+                                }
+                            }
+                        },
+                        'session_id': {'type': 'integer'},
+                        'count': {'type': 'integer'}
+                    }
+                }
+            ),
+            404: OpenApiResponse(description="Session not found"),
+            400: OpenApiResponse(description="Failed to find similar sessions"),
+        }
+    )
+    def get(self, request, session_id):
+        """Find sessions similar to the given session."""
+        try:
+            # Verify session exists and user has access
+            session = CodingSession.objects.get(
+                id=session_id,
+                user=request.user
+            )
+
+            # Import vector service
+            from core.ai.embeddings import VectorStoreService
+
+            # Get limit from query params (default 5, max 20)
+            limit = min(int(request.GET.get('limit', 5)), 20)
+            user_only = request.GET.get('user_only', 'true').lower() == 'true'
+
+            # Find similar sessions
+            vector_service = VectorStoreService()
+            similar_sessions = vector_service.find_similar_sessions(
+                session_id=session_id,
+                limit=limit,
+                user_only=user_only
+            )
+
+            logger.info(f"Found {len(similar_sessions)} similar sessions for session {session_id}")
+
+            return Response({
+                'similar_sessions': similar_sessions,
+                'session_id': session_id,
+                'count': len(similar_sessions),
+                'user_only': user_only
+            })
+
+        except CodingSession.DoesNotExist:
+            return Response(
+                {'error': 'Session not found or access denied'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            logger.error(f"Failed to find similar sessions for {session_id}: {e}")
+            return Response(
+                {'error': 'Failed to find similar sessions'},
+                status=status.HTTP_400_BAD_REQUEST
+            )

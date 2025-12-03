@@ -11,6 +11,8 @@ from .views import (
     SessionListView,
     SessionDetailView,
     SessionGroupView,
+    SessionNarrativeView,
+    SessionSimilarityView,
 )
 
 app_name = 'tracking'
@@ -30,4 +32,8 @@ urlpatterns = [
     path('sessions/', SessionListView.as_view(), name='session-list'),
     path('sessions/<int:pk>/', SessionDetailView.as_view(), name='session-detail'),
     path('sessions/group/', SessionGroupView.as_view(), name='session-group'),
+
+    # AI Features
+    path('sessions/<int:session_id>/generate-narrative/', SessionNarrativeView.as_view(), name='session-narrative'),
+    path('sessions/<int:session_id>/similar/', SessionSimilarityView.as_view(), name='session-similarity'),
 ]

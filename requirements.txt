@@ -5,3 +5,10 @@ drf-spectacular==0.27.0
 psycopg2-binary==2.9.9
 python-dotenv==1.0.0
 django-cors-headers==4.3.1
+django-redis>=5.0.0
+
+# AI Dependencies
+requests>=2.31.0
+langchain>=0.1.0
+chromadb>=0.4.0
+sentence-transformers>=2.2.0

@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'core.accounts',
     'core.tracking',
     'core.webhooks',
+    'core.ai',
 ]
 
 MIDDLEWARE = [
@@ -157,6 +158,28 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # GitHub Webhook Secret
 GITHUB_WEBHOOK_SECRET = os.environ.get('GITHUB_WEBHOOK_SECRET', '')
+
+# AI Configuration - A4F (Anthropic for Frontend)
+A4F_API_KEY = os.environ.get('A4F_API_KEY', 'ddc-a4f-6ed650b20cb04ccbbfb204a51c343e88')
+A4F_BASE_URL = os.environ.get('A4F_BASE_URL', 'https://api.a4f.co/v1')
+A4F_MODEL = os.environ.get('A4F_MODEL', 'provider-5/gpt-4o-mini')
+
+# ChromaDB Configuration
+CHROMADB_HOST = os.environ.get('CHROMADB_HOST', 'chromadb')
+CHROMADB_PORT = int(os.environ.get('CHROMADB_PORT', 8000))
+
+# Cache configuration for AI responses
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': os.environ.get('REDIS_URL', 'redis://redis:6379/1'),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        'KEY_PREFIX': 'devlog',
+        'TIMEOUT': 60 * 60 * 24,  # 24 hours default
+    }
+}
 
 # Logging configuration for Celery
 LOGGING = {
