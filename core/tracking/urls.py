@@ -13,6 +13,15 @@ from .views import (
     SessionGroupView,
     SessionNarrativeView,
     SessionSimilarityView,
+    # Activity Feed Views
+    ActivityFeedView,
+    ActivityStreamView,
+    # Insights Views
+    InsightListView,
+    GenerateWeeklySummaryView,
+    WeeklyInsightsView,
+    # Patterns Views
+    PatternListView,
 )
 
 app_name = 'tracking'
@@ -36,4 +45,16 @@ urlpatterns = [
     # AI Features
     path('sessions/<int:session_id>/generate-narrative/', SessionNarrativeView.as_view(), name='session-narrative'),
     path('sessions/<int:session_id>/similar/', SessionSimilarityView.as_view(), name='session-similarity'),
+
+    # Activity Feed
+    path('activity/', ActivityFeedView.as_view(), name='activity-feed'),
+    path('realtime/activity/', ActivityStreamView.as_view(), name='activity-stream'),
+
+    # Insights
+    path('insights/', InsightListView.as_view(), name='insights-list'),
+    path('insights/generate-weekly/', GenerateWeeklySummaryView.as_view(), name='generate-weekly-summary'),
+    path('insights/weekly/', WeeklyInsightsView.as_view(), name='weekly-insights'),
+
+    # Patterns
+    path('patterns/', PatternListView.as_view(), name='patterns-list'),
 ]
