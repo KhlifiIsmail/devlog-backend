@@ -71,7 +71,7 @@ def create_test_data():
             )
             commits.append(commit)
 
-        print(f"✅ Created {len(commits)} test commits")
+        print(f"SUCCESS: Created {len(commits)} test commits")
 
         # Create test sessions
         sessions = []
@@ -94,7 +94,7 @@ def create_test_data():
             )
             sessions.append(session)
 
-        print(f"✅ Created {len(sessions)} test sessions")
+        print(f"SUCCESS: Created {len(sessions)} test sessions")
 
         # Update commits to belong to sessions
         for i, session in enumerate(sessions):
@@ -103,19 +103,19 @@ def create_test_data():
                 commit.session = session
                 commit.save()
 
-        print(f"✅ Linked commits to sessions")
+        print(f"SUCCESS: Linked commits to sessions")
 
         # Update session stats
         for session in sessions:
             session.update_stats()
 
-        print("🎉 Test data creation complete!")
-        print(f"📊 Created:")
+        print("COMPLETE: Test data creation complete!")
+        print(f"Created:")
         print(f"   - {len(commits)} commits")
         print(f"   - {len(sessions)} coding sessions")
         print(f"   - Linked commits to sessions")
         print("")
-        print("🔥 Now test your API endpoints:")
+        print("Now test your API endpoints:")
         print("   - GET /api/v1/activity/")
         print("   - GET /api/v1/sessions/")
         print("   - GET /api/v1/commits/")
@@ -123,7 +123,7 @@ def create_test_data():
         print("   - GET /api/v1/patterns/")
 
     except Exception as e:
-        print(f"❌ Error creating test data: {e}")
+        print(f"ERROR: Error creating test data: {e}")
         import traceback
         traceback.print_exc()
 

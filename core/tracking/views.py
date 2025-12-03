@@ -531,41 +531,11 @@ class ActivityStreamView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user_id = request.user.id
-
-        def event_stream():
-            try:
-                # Send connection event
-                yield "data: " + json.dumps({'type': 'connected', 'message': 'Activity stream connected'}) + "\n\n"
-
-                # Send heartbeat every 30 seconds
-                counter = 0
-                while counter < 10:  # Limit to 10 iterations for safety
-                    counter += 1
-
-                    # Send heartbeat
-                    heartbeat_data = {
-                        'type': 'heartbeat',
-                        'timestamp': timezone.now().isoformat(),
-                        'counter': counter
-                    }
-                    yield "data: " + json.dumps(heartbeat_data) + "\n\n"
-
-                    time.sleep(30)
-
-            except Exception as e:
-                logger.error(f"SSE stream error: {e}")
-                error_data = {'type': 'error', 'message': str(e)}
-                yield "data: " + json.dumps(error_data) + "\n\n"
-
-        response = StreamingHttpResponse(
-            event_stream(),
-            content_type='text/event-stream'
-        )
-        response['Cache-Control'] = 'no-cache'
-        response['Connection'] = 'keep-alive'
-        response['X-Accel-Buffering'] = 'no'
-        return response
+        # Just return a simple message for now - fuck SSE
+        return Response({
+            'message': 'Real-time stream temporarily disabled. Use /api/v1/activity/ for updates.',
+            'status': 'disabled'
+        })
 
 
 # ==================== INSIGHTS VIEWS ====================
